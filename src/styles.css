@@ -138,6 +138,21 @@ body::before {
 /* ---------- weather mood ---------- */
 .wx-layer { position: fixed; inset: 0; z-index: 3; overflow: hidden; pointer-events: none; }
 .wx-rain { background: linear-gradient(rgba(42, 74, 112, 0.12), rgba(42, 74, 112, 0.05)); }
+.wx-storm { background: linear-gradient(rgba(30, 44, 74, 0.2), rgba(30, 44, 74, 0.08)); }
+
+/* lightning: a sky-flash that fires a quick double-strike every few seconds */
+.wx-flash {
+  position: absolute; inset: 0; opacity: 0; mix-blend-mode: screen;
+  background: linear-gradient(to bottom, rgba(214, 228, 255, 0.85), rgba(214, 228, 255, 0) 55%);
+  animation: wx-lightning 7s ease-out infinite;
+}
+@keyframes wx-lightning {
+  0%, 100% { opacity: 0; }
+  2% { opacity: 0.9; }
+  4% { opacity: 0.2; }
+  6% { opacity: 0.75; }
+  9% { opacity: 0; }
+}
 .wx-cold { background: linear-gradient(rgba(150, 180, 220, 0.12), rgba(150, 180, 220, 0.05)); }
 .wx-sunny { background: linear-gradient(rgba(255, 184, 92, 0.09), rgba(255, 184, 92, 0.02)); }
 .wx-calm { background: linear-gradient(rgba(120, 130, 150, 0.07), transparent); }

@@ -136,12 +136,13 @@ const WX_LABEL = {
   85: 'Snow showers', 86: 'Snow showers',
   95: 'Thunderstorm', 96: 'Thunderstorm', 99: 'Thunderstorm',
 }
-const MOOD_ICON = { sunny: '☀️', rain: '🌧️', cold: '❄️', calm: '☁️' }
+const MOOD_ICON = { sunny: '☀️', rain: '🌧️', storm: '⛈️', cold: '❄️', calm: '☁️' }
 
-// Reduce a weather code + temperature to one of four site moods.
+// Reduce a weather code + temperature to one of the site moods.
 function moodFromWeather(code, temp, isDay) {
+  if ([95, 96, 99].includes(code)) return 'storm'
   if ([71, 73, 75, 77, 85, 86].includes(code)) return 'cold'
-  if ([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99].includes(code)) return 'rain'
+  if ([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return 'rain'
   if (typeof temp === 'number' && temp <= 8) return 'cold'
   if ((code === 0 || code === 1) && isDay) return 'sunny'
   return 'calm'
@@ -199,9 +200,10 @@ function WeatherLayer({ mood }) {
   if (!mood) return null
   return (
     <div className={`wx-layer wx-${mood}`} aria-hidden="true">
-      {mood === 'rain' && rain.map((d, i) => (
+      {(mood === 'rain' || mood === 'storm') && rain.map((d, i) => (
         <span key={i} className="wx-rain-drop" style={{ left: `${d.left}%`, height: `${d.h}%`, animationDuration: `${d.dur}s`, animationDelay: `${d.delay}s` }} />
       ))}
+      {mood === 'storm' && <span className="wx-flash" />}
       {mood === 'cold' && snow.map((d, i) => (
         <span key={i} className="wx-snow-flake" style={{ left: `${d.left}%`, width: `${d.size}px`, height: `${d.size}px`, animationDuration: `${d.dur}s`, animationDelay: `${d.delay}s`, '--drift': `${d.drift}px` }} />
       ))}
