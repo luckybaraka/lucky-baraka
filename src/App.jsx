@@ -89,6 +89,29 @@ function Failover() {
   )
 }
 
+/* ---------- scroll cue: tells visitors there's more below, fades out once they scroll ---------- */
+function ScrollCue() {
+  const [hidden, setHidden] = useState(false)
+  useEffect(() => {
+    const onScroll = () => setHidden(window.scrollY > 120)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+  return (
+    <button
+      className={`scroll-cue ${hidden ? 'is-hidden' : ''}`}
+      onClick={() => scrollToId('about')}
+      aria-label="Scroll down to see more"
+    >
+      <span>More below</span>
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6 9l6 6 6-6" />
+      </svg>
+    </button>
+  )
+}
+
 function Hero({ onContact }) {
   return (
     <section className="hero" aria-labelledby="hero-title">
@@ -340,6 +363,7 @@ export default function App() {
           <Achievements />
           <LatestWriting feed={feed} />
           <Contact />
+          <ScrollCue />
         </main>
       )}
       <Footer />
