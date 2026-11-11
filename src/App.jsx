@@ -21,7 +21,7 @@ function useRoute() {
 const scrollToId = (id) => document.getElementById(id)?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' })
 
 /* ---------- nav ---------- */
-function Nav({ route }) {
+function Nav({ route, weather }) {
   const [pending, setPending] = useState(null)
   useEffect(() => {
     if (pending && route.page === 'home') { requestAnimationFrame(() => scrollToId(pending)); setPending(null) }
@@ -38,6 +38,7 @@ function Nav({ route }) {
           <img src={person.photo} alt="" width="28" height="28" />
           <span>Lucky Baraka</span>
         </a>
+        <WeatherReadout weather={weather} />
         <nav aria-label="Main">
           <a href="#/" onClick={go('about')} className="hide-sm">About</a>
           <a href="#/" onClick={go('projects')} className="hide-sm">Projects</a>
@@ -209,28 +210,28 @@ function WeatherLayer({ mood }) {
   )
 }
 
-// The date / time / weather line shown in the hero.
+// The date / time / weather line shown in the navbar.
 function WeatherReadout({ weather }) {
   const now = useClock()
   const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   const date = now.toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' })
   const mood = weather && moodFromWeather(weather.code, weather.temp, weather.isDay)
   return (
-    <p className="hero-meta">
-      <span className="hero-meta-time">{time}</span>
-      <span className="hero-meta-sep" aria-hidden="true">·</span>
-      <span>{date}</span>
+    <div className="nav-meta" aria-label="Local date, time and weather">
+      <span className="wx-time">{time}</span>
+      <span className="wx-date">{date}</span>
       {weather && (
-        <>
-          <span className="hero-meta-sep" aria-hidden="true">·</span>
-          <span className="hero-meta-wx">{MOOD_ICON[mood]} {weather.temp}°C, {WX_LABEL[weather.code] || 'Weather'} in {weather.city}</span>
-        </>
+        <span className="wx-cond">
+          <span className="wx-icon" aria-hidden="true">{MOOD_ICON[mood]}</span>
+          <span className="wx-temp">{weather.temp}°C</span>
+          <span className="wx-desc">{WX_LABEL[weather.code] || 'Weather'} in {weather.city}</span>
+        </span>
       )}
-    </p>
+    </div>
   )
 }
 
-function Hero({ onContact, weather }) {
+function Hero({ onContact }) {
   return (
     <section className="hero" aria-labelledby="hero-title">
       <div className="hero-copy">
@@ -243,7 +244,6 @@ function Hero({ onContact, weather }) {
           <a className="btn btn-secondary" href={person.github} target="_blank" rel="noreferrer">GitHub</a>
           <a className="btn btn-secondary" href={person.linkedin} target="_blank" rel="noreferrer">LinkedIn</a>
         </div>
-        <WeatherReadout weather={weather} />
       </div>
       <div className="hero-side">
         <div className="portrait">
@@ -473,12 +473,12 @@ export default function App() {
     <>
       <a className="skip" href="#main" onClick={(e) => { e.preventDefault(); document.getElementById('main')?.focus() }}>Skip to content</a>
       <WeatherLayer mood={mood} />
-      <Nav route={route} />
+      <Nav route={route} weather={weather} />
       {route.page === 'blog' ? (
         <BlogPage feed={feed} cat={route.cat} />
       ) : (
         <main id="main" tabIndex={-1}>
-          <Hero onContact={() => scrollToId('contact')} weather={weather} />
+          <Hero onContact={() => scrollToId('contact')} />
           <About />
           <Stack />
           <Projects />

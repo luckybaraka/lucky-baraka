@@ -162,15 +162,15 @@ body::before {
 }
 @keyframes wx-pulse { 0%, 100% { opacity: 0.7; transform: scale(1); } 50% { opacity: 1; transform: scale(1.08); } }
 
-/* ---------- hero date / time / weather readout ---------- */
-.hero-copy > :nth-child(6) { animation-delay: 0.4s; }
-.hero-meta {
-  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
-  margin-top: 1.5rem; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums;
+/* ---------- navbar date / time / weather readout ---------- */
+.nav-meta {
+  display: flex; align-items: center; min-width: 0;
+  font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap;
 }
-.hero-meta-time { color: var(--text); font-weight: 500; }
-.hero-meta-wx { color: var(--text); }
-.hero-meta-sep { opacity: 0.45; }
+.nav-meta > span + span::before { content: '·'; opacity: 0.4; margin: 0 8px; }
+.nav-meta .wx-time { color: var(--text); font-weight: 500; }
+.nav-meta .wx-cond { display: inline-flex; align-items: center; gap: 6px; color: var(--text); }
+.nav-meta .wx-desc { color: var(--muted); }
 
 /* ---------- about ---------- */
 .about-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: clamp(2rem, 6vw, 4rem); }
@@ -351,6 +351,7 @@ h2.tight { margin-bottom: 0.75rem; }
   .stack-row { grid-template-columns: 1fr; gap: 0.9rem; }
   .projects { grid-template-columns: 1fr; }
   .project, .project.is-wide { grid-column: auto; }
+  .nav-meta .wx-desc, .nav-meta .wx-date { display: none; }
 }
 @media (max-width: 640px) {
   .stars { grid-template-columns: 1fr; }
