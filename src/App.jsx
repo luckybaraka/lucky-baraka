@@ -123,7 +123,114 @@ function ScrollProgress() {
   )
 }
 
-function Hero({ onContact }) {
+/* ---------- weather: drives the site's mood and a live date/time/weather readout ---------- */
+// WMO weather codes (open-meteo) mapped to a plain-English label.
+const WX_LABEL = {
+  0: 'Clear sky', 1: 'Mainly clear', 2: 'Partly cloudy', 3: 'Overcast',
+  45: 'Fog', 48: 'Rime fog',
+  51: 'Light drizzle', 53: 'Drizzle', 55: 'Heavy drizzle', 56: 'Freezing drizzle', 57: 'Freezing drizzle',
+  61: 'Light rain', 63: 'Rain', 65: 'Heavy rain', 66: 'Freezing rain', 67: 'Freezing rain',
+  71: 'Light snow', 73: 'Snow', 75: 'Heavy snow', 77: 'Snow grains',
+  80: 'Light showers', 81: 'Showers', 82: 'Violent showers',
+  85: 'Snow showers', 86: 'Snow showers',
+  95: 'Thunderstorm', 96: 'Thunderstorm', 99: 'Thunderstorm',
+}
+const MOOD_ICON = { sunny: '☀️', rain: '🌧️', cold: '❄️', calm: '☁️' }
+
+// Reduce a weather code + temperature to one of four site moods.
+function moodFromWeather(code, temp, isDay) {
+  if ([71, 73, 75, 77, 85, 86].includes(code)) return 'cold'
+  if ([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99].includes(code)) return 'rain'
+  if (typeof temp === 'number' && temp <= 8) return 'cold'
+  if ((code === 0 || code === 1) && isDay) return 'sunny'
+  return 'calm'
+}
+
+// Find the visitor's location by IP (falls back to Nairobi), then fetch current weather.
+function useWeather() {
+  const [weather, setWeather] = useState(null)
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      let lat = -1.2921, lon = 36.8219, city = 'Nairobi'
+      try {
+        const g = await fetch('https://ipapi.co/json/').then((r) => (r.ok ? r.json() : null))
+        if (g && typeof g.latitude === 'number' && typeof g.longitude === 'number') {
+          lat = g.latitude; lon = g.longitude; city = g.city || city
+        }
+      } catch { /* keep the Nairobi fallback */ }
+      try {
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,is_day&timezone=auto`
+        const w = await fetch(url).then((r) => (r.ok ? r.json() : null))
+        if (!cancelled && w?.current) {
+          setWeather({
+            city,
+            temp: Math.round(w.current.temperature_2m),
+            code: w.current.weather_code,
+            isDay: w.current.is_day === 1,
+          })
+        }
+      } catch { /* leave weather null: readout still shows date and time, no mood applied */ }
+    })()
+    return () => { cancelled = true }
+  }, [])
+  return weather
+}
+
+// A clock that ticks every second.
+function useClock() {
+  const [now, setNow] = useState(() => new Date())
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000)
+    return () => clearInterval(id)
+  }, [])
+  return now
+}
+
+// Full-screen mood overlay: rain streaks, drifting snow, or a warm sun glow.
+function WeatherLayer({ mood }) {
+  const [rain] = useState(() => Array.from({ length: 50 }, () => ({
+    left: Math.random() * 100, delay: Math.random() * 2, dur: 0.5 + Math.random() * 0.6, h: 10 + Math.random() * 10,
+  })))
+  const [snow] = useState(() => Array.from({ length: 28 }, () => ({
+    left: Math.random() * 100, delay: Math.random() * 6, dur: 6 + Math.random() * 6, size: 3 + Math.random() * 5, drift: Math.random() * 40 - 20,
+  })))
+  if (!mood) return null
+  return (
+    <div className={`wx-layer wx-${mood}`} aria-hidden="true">
+      {mood === 'rain' && rain.map((d, i) => (
+        <span key={i} className="wx-rain-drop" style={{ left: `${d.left}%`, height: `${d.h}%`, animationDuration: `${d.dur}s`, animationDelay: `${d.delay}s` }} />
+      ))}
+      {mood === 'cold' && snow.map((d, i) => (
+        <span key={i} className="wx-snow-flake" style={{ left: `${d.left}%`, width: `${d.size}px`, height: `${d.size}px`, animationDuration: `${d.dur}s`, animationDelay: `${d.delay}s`, '--drift': `${d.drift}px` }} />
+      ))}
+      {mood === 'sunny' && <span className="wx-sun" />}
+    </div>
+  )
+}
+
+// The date / time / weather line shown in the hero.
+function WeatherReadout({ weather }) {
+  const now = useClock()
+  const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  const date = now.toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' })
+  const mood = weather && moodFromWeather(weather.code, weather.temp, weather.isDay)
+  return (
+    <p className="hero-meta">
+      <span className="hero-meta-time">{time}</span>
+      <span className="hero-meta-sep" aria-hidden="true">·</span>
+      <span>{date}</span>
+      {weather && (
+        <>
+          <span className="hero-meta-sep" aria-hidden="true">·</span>
+          <span className="hero-meta-wx">{MOOD_ICON[mood]} {weather.temp}°C, {WX_LABEL[weather.code] || 'Weather'} in {weather.city}</span>
+        </>
+      )}
+    </p>
+  )
+}
+
+function Hero({ onContact, weather }) {
   return (
     <section className="hero" aria-labelledby="hero-title">
       <div className="hero-copy">
@@ -136,6 +243,7 @@ function Hero({ onContact }) {
           <a className="btn btn-secondary" href={person.github} target="_blank" rel="noreferrer">GitHub</a>
           <a className="btn btn-secondary" href={person.linkedin} target="_blank" rel="noreferrer">LinkedIn</a>
         </div>
+        <WeatherReadout weather={weather} />
       </div>
       <div className="hero-side">
         <div className="portrait">
@@ -359,15 +467,18 @@ function Footer() {
 export default function App() {
   const route = useRoute()
   const feed = useFeed()
+  const weather = useWeather()
+  const mood = weather ? moodFromWeather(weather.code, weather.temp, weather.isDay) : null
   return (
     <>
       <a className="skip" href="#main" onClick={(e) => { e.preventDefault(); document.getElementById('main')?.focus() }}>Skip to content</a>
+      <WeatherLayer mood={mood} />
       <Nav route={route} />
       {route.page === 'blog' ? (
         <BlogPage feed={feed} cat={route.cat} />
       ) : (
         <main id="main" tabIndex={-1}>
-          <Hero onContact={() => scrollToId('contact')} />
+          <Hero onContact={() => scrollToId('contact')} weather={weather} />
           <About />
           <Stack />
           <Projects />

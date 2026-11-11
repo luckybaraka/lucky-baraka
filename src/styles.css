@@ -135,6 +135,43 @@ body::before {
 .scroll-progress-pct { min-width: 32px; text-align: right; }
 @keyframes cue-in { from { opacity: 0; transform: translateX(-50%) translateY(14px); } }
 
+/* ---------- weather mood ---------- */
+.wx-layer { position: fixed; inset: 0; z-index: 3; overflow: hidden; pointer-events: none; }
+.wx-rain { background: linear-gradient(rgba(42, 74, 112, 0.12), rgba(42, 74, 112, 0.05)); }
+.wx-cold { background: linear-gradient(rgba(150, 180, 220, 0.12), rgba(150, 180, 220, 0.05)); }
+.wx-sunny { background: linear-gradient(rgba(255, 184, 92, 0.09), rgba(255, 184, 92, 0.02)); }
+.wx-calm { background: linear-gradient(rgba(120, 130, 150, 0.07), transparent); }
+
+.wx-rain-drop {
+  position: absolute; top: -12%; width: 1px;
+  background: linear-gradient(to bottom, transparent, rgba(180, 205, 235, 0.55));
+  animation-name: wx-fall; animation-timing-function: linear; animation-iteration-count: infinite;
+}
+@keyframes wx-fall { to { transform: translateY(120vh); } }
+
+.wx-snow-flake {
+  position: absolute; top: -5%; border-radius: 50%; background: rgba(224, 233, 246, 0.8);
+  animation-name: wx-drift; animation-timing-function: linear; animation-iteration-count: infinite;
+}
+@keyframes wx-drift { to { transform: translateY(110vh) translateX(var(--drift, 20px)); } }
+
+.wx-sun {
+  position: absolute; top: -130px; right: -110px; width: 360px; height: 360px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 214, 140, 0.4), rgba(255, 214, 140, 0) 70%);
+  animation: wx-pulse 6s ease-in-out infinite;
+}
+@keyframes wx-pulse { 0%, 100% { opacity: 0.7; transform: scale(1); } 50% { opacity: 1; transform: scale(1.08); } }
+
+/* ---------- hero date / time / weather readout ---------- */
+.hero-copy > :nth-child(6) { animation-delay: 0.4s; }
+.hero-meta {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  margin-top: 1.5rem; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums;
+}
+.hero-meta-time { color: var(--text); font-weight: 500; }
+.hero-meta-wx { color: var(--text); }
+.hero-meta-sep { opacity: 0.45; }
+
 /* ---------- about ---------- */
 .about-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: clamp(2rem, 6vw, 4rem); }
 .prose p { max-width: 62ch; }
@@ -332,4 +369,5 @@ h2.tight { margin-bottom: 0.75rem; }
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
   .fo-packet, .fo-down { opacity: 0 !important; }
   .fo-up, .fo-mid-traffic { opacity: 1 !important; }
+  .wx-layer span { display: none !important; }
 }
