@@ -115,19 +115,24 @@ body::before {
 @keyframes rise { from { opacity: 0; transform: translateY(18px); } }
 @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 
-/* ---------- scroll cue ---------- */
-.scroll-cue {
+/* ---------- scroll progress ---------- */
+.scroll-progress {
   position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%);
-  z-index: 40; display: inline-flex; flex-direction: column; align-items: center; gap: 2px;
-  padding: 6px 10px; border: 0; background: none; cursor: pointer; color: var(--muted);
-  font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
+  z-index: 40; display: inline-flex; align-items: center; gap: 10px;
+  padding: 8px 14px; border-radius: 999px;
+  background: var(--surface); box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--muted); font-size: 12px; font-weight: 500; font-variant-numeric: tabular-nums;
   animation: cue-in 0.8s 0.6s cubic-bezier(.2, .8, .2, 1) both;
-  transition: opacity 0.4s, transform 0.4s, color 0.2s;
 }
-.scroll-cue:hover { color: var(--accent); }
-.scroll-cue svg { animation: cue-bounce 1.8s ease-in-out infinite; }
-.scroll-cue.is-hidden { opacity: 0; pointer-events: none; transform: translateX(-50%) translateY(12px); }
-@keyframes cue-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+.scroll-progress-track {
+  position: relative; width: 96px; height: 4px; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12); overflow: hidden;
+}
+.scroll-progress-bar {
+  position: absolute; inset: 0; border-radius: 999px; background: var(--accent);
+  transform-origin: left center; transition: transform 0.1s linear;
+}
+.scroll-progress-pct { min-width: 32px; text-align: right; }
 @keyframes cue-in { from { opacity: 0; transform: translateX(-50%) translateY(14px); } }
 
 /* ---------- about ---------- */

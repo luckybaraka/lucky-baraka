@@ -89,26 +89,37 @@ function Failover() {
   )
 }
 
-/* ---------- scroll cue: tells visitors there's more below, fades out once they scroll ---------- */
-function ScrollCue() {
-  const [hidden, setHidden] = useState(false)
+/* ---------- scroll progress: a sideways bar that fills and shows how far down the page you are ---------- */
+function ScrollProgress() {
+  const [pct, setPct] = useState(0)
   useEffect(() => {
-    const onScroll = () => setHidden(window.scrollY > 120)
+    const onScroll = () => {
+      const el = document.documentElement
+      const max = el.scrollHeight - el.clientHeight
+      setPct(max > 0 ? Math.min(100, Math.round((el.scrollTop / max) * 100)) : 0)
+    }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+    window.addEventListener('resize', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
   }, [])
   return (
-    <button
-      className={`scroll-cue ${hidden ? 'is-hidden' : ''}`}
-      onClick={() => scrollToId('about')}
-      aria-label="Scroll down to see more"
+    <div
+      className="scroll-progress"
+      role="progressbar"
+      aria-label="Page scroll progress"
+      aria-valuenow={pct}
+      aria-valuemin={0}
+      aria-valuemax={100}
     >
-      <span>More below</span>
-      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M6 9l6 6 6-6" />
-      </svg>
-    </button>
+      <span className="scroll-progress-track">
+        <span className="scroll-progress-bar" style={{ transform: `scaleX(${pct / 100})` }} />
+      </span>
+      <span className="scroll-progress-pct">{pct}%</span>
+    </div>
   )
 }
 
@@ -363,7 +374,7 @@ export default function App() {
           <Achievements />
           <LatestWriting feed={feed} />
           <Contact />
-          <ScrollCue />
+          <ScrollProgress />
         </main>
       )}
       <Footer />
