@@ -267,6 +267,14 @@ h2.tight { margin-bottom: 0.75rem; }
 .card-quote { margin-top: 4px; padding: 10px 14px; border-radius: 12px; background: rgba(60, 200, 192, 0.08); }
 .project .tags { margin-top: auto; padding-top: 8px; }
 .card-link { font-size: 14px; color: var(--accent); }
+.projects-footnote { margin-top: 1.75rem; text-align: center; }
+
+/* ---------- side venture ---------- */
+.business { gap: 14px; padding: 1.75rem; max-width: 760px; }
+.business h3 { font-size: 1.4rem; display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
+.business-url { color: var(--accent); font-size: 1rem; font-weight: 500; }
+.business-services { margin-top: 2px; }
+.business-cta { align-self: flex-start; margin-top: 8px; }
 
 /* ---------- achievements ---------- */
 .stars { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }

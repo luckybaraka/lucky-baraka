@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { person, hero, about, facts, quotes, stack, projects, achievements, blogCategories } from './data.js'
+import { person, hero, about, facts, quotes, stack, projects, achievements, business, blogCategories } from './data.js'
 import { useFeed, postsIn, formatDate } from './feed.js'
 import Contact from './Contact.jsx'
 
@@ -265,7 +265,10 @@ function About() {
         <div className="about-side">
           <dl className="facts">
             {facts.map((f) => (
-              <div key={f.label}><dt>{f.label}</dt><dd>{f.value}</dd></div>
+              <div key={f.label}>
+                <dt>{f.label}</dt>
+                <dd>{f.href ? <a href={f.href} target="_blank" rel="noreferrer">{f.value}</a> : f.value}</dd>
+              </div>
             ))}
           </dl>
           <Failover />
@@ -306,18 +309,18 @@ function Projects() {
       </div>
       <ul className="projects">
         {projects.map((p) => (
-          <li key={p.kind} className={`project ${p.wide ? 'is-wide' : ''}`}>
+          <li key={p.kind} className="project">
             <a href={p.link} target="_blank" rel="noreferrer" className="card">
               <span className="kind">{p.kind}</span>
               <h3>{p.title}</h3>
               <p className="muted">{p.summary}</p>
-              {p.quote && <p className="card-quote">“{p.quote.text}” <span>{p.quote.by}</span></p>}
               <ul className="tags">{p.tags.map((t) => <li key={t}>{t}</li>)}</ul>
               <span className="card-link">View on GitHub</span>
             </a>
           </li>
         ))}
       </ul>
+      <p className="section-quote projects-footnote">“{quotes.build.text}” <span>{quotes.build.by}</span></p>
     </section>
   )
 }
@@ -347,6 +350,22 @@ function Achievements() {
           </li>
         ))}
       </ul>
+    </section>
+  )
+}
+
+function Business() {
+  return (
+    <section id="business" className="section" aria-labelledby="business-title">
+      <h2 id="business-title" className="tight">Side venture</h2>
+      <p className="muted section-sub">A business I help run when I’m not deep in systems code.</p>
+      <div className="business card">
+        <span className="kind">{business.role}</span>
+        <h3>{business.name} <span className="business-url">{business.domain}</span></h3>
+        <p className="muted">{business.blurb}</p>
+        <ul className="tags business-services">{business.services.map((s) => <li key={s}>{s}</li>)}</ul>
+        <a className="btn btn-primary business-cta" href={business.url} target="_blank" rel="noreferrer">Visit {business.domain}</a>
+      </div>
     </section>
   )
 }
@@ -485,6 +504,7 @@ export default function App() {
           <Stack />
           <Projects />
           <Achievements />
+          <Business />
           <LatestWriting feed={feed} />
           <Contact />
           <ScrollProgress />
